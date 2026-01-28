@@ -2,6 +2,9 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import WebDriverException
+import math
+import time
 
 def main():
     driver = webdriver.Chrome()
@@ -14,30 +17,51 @@ def main():
     food = {'x': 0, 'y': 0}
     blocks = []
 
-    while True:
-        snake = driver.execute_script("return {'x': snakeX, 'y': snakeX, 'dir_x': velocityX, 'dir_y': velocityY}")
-        food = driver.execute_script("return {'x': foodX, 'y': foodY}")
-        blocks = driver.execute_script("return blocks")
+    try:
+        while True:
+            snake = driver.execute_script("return {'x': snakeX, 'y': snakeY, 'dir_x': velocityX, 'dir_y': velocityY}")
+            food = driver.execute_script("return {'x': foodX, 'y': foodY}")
+            blocks = driver.execute_script("return blocks")
 
-        path = pursue_food(snake, food)
+            pursue_food(snake, food, actions)
 
-        actions.send_keys(Keys.ARROW_LEFT).perform()
-        # if path == 1:
-        #     # left key down
+            if not driver.execute_script("return isRunning"):
+                driver.quit()
 
-        # elif path == 2:
-        #     # up key down
-        # elif path == 3:
-        #     # right key down
-        # elif path == 4:
-        #     # down key down
+            time.sleep(0.15)
+    except WebDriverException as e:
+        print("Selenium session lost:")
+    finally:
+        try:
+            driver.quit()
+        except:
+            pass
 
 
-    driver.quit()
+def pursue_food(s, f, actions):
+    current_pos = (s['x'], s['y'])
+    food_pos = (f['x'], f['y'])
+    current_dist = math.dist(current_pos, food_pos)
+    MOVES = {
+        Keys.ARROW_RIGHT: (1, 0),
+        Keys.ARROW_LEFT: (-1, 0),
+        Keys.ARROW_UP: (0, -1),
+        Keys.ARROW_DOWN: (0, 1)
+    }
 
-def pursue_food(s, f):
-    n = 0
-    return n
+    best_key = None
+    best_dist = current_dist
+
+    for key, (dx, dy) in MOVES.items():
+        next_pos = (s['x'] + dx, s['y'] + dy)
+        d = math.dist(next_pos, food_pos)
+
+        if d < best_dist:
+            best_dist = d
+            best_key = key
+
+    if best_key:
+        actions.send_keys(best_key).perform()
 
 '''
 def determine_action(s, f, b):
