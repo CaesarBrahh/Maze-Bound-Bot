@@ -57,9 +57,13 @@ def pursue_food(s, f, b, actions, xm, ym):
     for key, (dx, dy) in MOVES.items():
         next_pos = (s['x'] + dx, s['y'] + dy)
 
-        if [next_pos[0], next_pos[1]] in b or next_pos[0] < 0 or next_pos[1] < 0 or next_pos[0] > xm or next_pos[1] > ym:
-            print(next_pos)
+        if next_pos[0] < 0 or next_pos[1] < 0 or next_pos[0] > xm or next_pos[1] > ym:
+            
             continue
+        
+        if [next_pos[0], next_pos[1]] in b or [next_pos[0] + dx, next_pos[1] + dy] in b:
+            continue
+
         d = math.dist(next_pos, food_pos)
 
         if d < best_dist:
@@ -68,7 +72,7 @@ def pursue_food(s, f, b, actions, xm, ym):
 
     if best_key:
         actions.send_keys(best_key).perform()
-        #print([s['x']+MOVES[best_key][0], s['y']+MOVES[best_key][1]], b)
+        print([s['x']+MOVES[best_key][0], s['y']+MOVES[best_key][1]], b)
 
 if __name__ == "__main__":
     main()
