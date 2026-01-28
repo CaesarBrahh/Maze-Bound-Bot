@@ -16,6 +16,8 @@ def main():
     snake = {'x': 2, 'y': 2}
     food = {'x': 0, 'y': 0}
     blocks = []
+    x_max = driver.execute_script("return board.width")
+    y_max = driver.execute_script("return board.height")
 
     try:
         while True:
@@ -23,12 +25,12 @@ def main():
             food = driver.execute_script("return {'x': foodX, 'y': foodY}")
             blocks = driver.execute_script("return blocks")
 
-            pursue_food(snake, food, actions)
+            pursue_food(snake, food, blocks, actions, x_max, y_max)
 
             if not driver.execute_script("return isRunning"):
                 driver.quit()
 
-            time.sleep(0.15)
+            time.sleep(0.05)
     except WebDriverException as e:
         print("Selenium session lost:")
     finally:
@@ -38,15 +40,15 @@ def main():
             pass
 
 
-def pursue_food(s, f, actions):
+def pursue_food(s, f, b, actions, xm, ym):
     current_pos = (s['x'], s['y'])
     food_pos = (f['x'], f['y'])
     current_dist = math.dist(current_pos, food_pos)
     MOVES = {
-        Keys.ARROW_RIGHT: (1, 0),
-        Keys.ARROW_LEFT: (-1, 0),
-        Keys.ARROW_UP: (0, -1),
-        Keys.ARROW_DOWN: (0, 1)
+        Keys.ARROW_RIGHT: (25, 0),
+        Keys.ARROW_LEFT: (-25, 0),
+        Keys.ARROW_UP: (0, -25),
+        Keys.ARROW_DOWN: (0, 25)
     }
 
     best_key = None
@@ -54,6 +56,10 @@ def pursue_food(s, f, actions):
 
     for key, (dx, dy) in MOVES.items():
         next_pos = (s['x'] + dx, s['y'] + dy)
+
+        if [next_pos[0], next_pos[1]] in b or next_pos[0] < 0 or next_pos[1] < 0 or next_pos[0] > xm or next_pos[1] > ym:
+            print(next_pos)
+            continue
         d = math.dist(next_pos, food_pos)
 
         if d < best_dist:
@@ -62,15 +68,7 @@ def pursue_food(s, f, actions):
 
     if best_key:
         actions.send_keys(best_key).perform()
-
-'''
-def determine_action(s, f, b):
-    if [s['x']+s['dir_x'], s['y']+s['dir_y']] in b:
-        return [0, 0]
-    else:
-        if 
-
-'''
+        #print([s['x']+MOVES[best_key][0], s['y']+MOVES[best_key][1]], b)
 
 if __name__ == "__main__":
     main()
