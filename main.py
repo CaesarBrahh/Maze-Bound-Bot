@@ -1,3 +1,8 @@
+'''
+bug fixes:
+- stalls out and moves back and forth if food is placed directly next to block
+- when appraoching food adjacent to wall (food['x'] = 0 or board.width or food['y'] = 0 or board.height) it hits the wall
+'''
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
@@ -52,16 +57,17 @@ def pursue_food(s, f, b, actions, xm, ym):
     }
 
     best_key = None
-    best_dist = current_dist
+    best_dist = float("inf")
 
     for key, (dx, dy) in MOVES.items():
         next_pos = (s['x'] + dx, s['y'] + dy)
 
-        if next_pos[0] < 0 or next_pos[1] < 0 or next_pos[0] > xm or next_pos[1] > ym:
-            
+        # Checks for wall collisions
+        if next_pos[0] < 0 or next_pos[1] < 0 or next_pos[0] >= xm or next_pos[1] >= ym:
             continue
-        
-        if [next_pos[0], next_pos[1]] in b or [next_pos[0] + dx, next_pos[1] + dy] in b:
+
+        # Checks for block collisions
+        if [next_pos[0], next_pos[1]] in b:
             continue
 
         d = math.dist(next_pos, food_pos)
@@ -71,8 +77,8 @@ def pursue_food(s, f, b, actions, xm, ym):
             best_key = key
 
     if best_key:
+        print([s['x'], s['y']], [s['x']+MOVES[best_key][0], s['y']+MOVES[best_key][1]])
         actions.send_keys(best_key).perform()
-        print([s['x']+MOVES[best_key][0], s['y']+MOVES[best_key][1]], b)
 
 if __name__ == "__main__":
     main()
