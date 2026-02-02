@@ -1,8 +1,3 @@
-'''
-bug fixes:
-- stalls out and moves back and forth if food is placed directly next to block
-- when appraoching food adjacent to wall (food['x'] = 0 or board.width or food['y'] = 0 or board.height) it hits the wall
-'''
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
@@ -46,9 +41,10 @@ def main():
 
 
 def pursue_food(s, f, b, actions, xm, ym):
-    current_pos = (s['x'], s['y'])
+    if not hasattr(pursue_food, "prev_pos"):
+        pursue_food.prev_pos = None
+
     food_pos = (f['x'], f['y'])
-    current_dist = math.dist(current_pos, food_pos)
     MOVES = {
         Keys.ARROW_RIGHT: (25, 0),
         Keys.ARROW_LEFT: (-25, 0),
@@ -72,12 +68,17 @@ def pursue_food(s, f, b, actions, xm, ym):
 
         d = math.dist(next_pos, food_pos)
 
+        # Prevent stalling by "penalizing" a repeated move
+        if next_pos == pursue_food.prev_pos:
+            d += 10_000
+            print(d)
+
         if d < best_dist:
             best_dist = d
             best_key = key
 
     if best_key:
-        print([s['x'], s['y']], [s['x']+MOVES[best_key][0], s['y']+MOVES[best_key][1]])
+        pursue_food.prev_pos = (s['x'], s['y'])
         actions.send_keys(best_key).perform()
 
 if __name__ == "__main__":
