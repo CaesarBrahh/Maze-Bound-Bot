@@ -5,6 +5,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import WebDriverException
 import math
 import time
+import random
 
 def main():
     driver = webdriver.Chrome()
@@ -25,7 +26,8 @@ def main():
             food = driver.execute_script("return {'x': foodX, 'y': foodY}")
             blocks = driver.execute_script("return blocks")
 
-            pursue_food(snake, food, blocks, actions, x_max, y_max)
+            # greedy_euclidean(snake, food, blocks, actions, x_max, y_max)
+            random_walk(snake, blocks, actions, x_max, y_max)
 
             if not driver.execute_script("return isRunning"):
                 driver.quit()
@@ -40,9 +42,10 @@ def main():
             pass
 
 
-def pursue_food(s, f, b, actions, xm, ym):
-    if not hasattr(pursue_food, "prev_pos"):
-        pursue_food.prev_pos = None
+# Greedy Euclidean path-finding algorithm w/ Back-Tracking Penalties
+def greedy_euclidean(s, f, b, actions, xm, ym):
+    if not hasattr(greedy_euclidean, "prev_pos"):
+        greedy_euclidean.prev_pos = None
 
     food_pos = (f['x'], f['y'])
     MOVES = {
@@ -69,17 +72,37 @@ def pursue_food(s, f, b, actions, xm, ym):
         d = math.dist(next_pos, food_pos)
 
         # Prevent stalling by "penalizing" a repeated move
-        if next_pos == pursue_food.prev_pos:
+        if next_pos == greedy_euclidean.prev_pos:
             d += 10_000
-            print(d)
 
         if d < best_dist:
             best_dist = d
             best_key = key
 
     if best_key:
-        pursue_food.prev_pos = (s['x'], s['y'])
+        greedy_euclidean.prev_pos = (s['x'], s['y'])
         actions.send_keys(best_key).perform()
+
+# Random Walk path-finding algorithm
+def random_walk(s, b, actions, xm, ym):
+    MOVES = {
+        Keys.ARROW_RIGHT: (25, 0),
+        Keys.ARROW_LEFT: (-25, 0),
+        Keys.ARROW_UP: (0, -25),
+        Keys.ARROW_DOWN: (0, 25)
+    }
+    options = []
+
+    # block and edge detection
+    for key, (dx, dy) in MOVES.items():
+        next_pos = (s['x'] + dx, s['y'] + dy)
+        if ([next_pos[0], next_pos[1]] not in b) and (next_pos[0] >= 0) and (next_pos[1] > 0) and (next_pos[0] < xm) and (next_pos[1] < ym):
+            options.append(key)
+
+    # choose and send random key
+    random_key = random.choice(options)
+    actions.send_keys(random_key).perform()
+
 
 if __name__ == "__main__":
     main()
