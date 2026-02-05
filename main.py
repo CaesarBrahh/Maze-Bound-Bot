@@ -32,7 +32,6 @@ def main():
 
             actions.send_keys(key).perform()
 
-            print(greedy.prev_pos)
             if food_prev != food:
                 food_prev = food
                 greedy.prev_pos = []
