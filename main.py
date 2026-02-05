@@ -1,3 +1,8 @@
+'''
+TODO:
+- back-tracking reference list
+- align ticks
+'''
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
@@ -16,6 +21,7 @@ def main():
 
     snake = {'x': 2, 'y': 2}
     food = {'x': 0, 'y': 0}
+    food_prev = food
     blocks = []
     x_max = driver.execute_script("return board.width")
     y_max = driver.execute_script("return board.height")
@@ -30,6 +36,10 @@ def main():
             # key = random(snake, blocks, x_max, y_max)
 
             actions.send_keys(key).perform()
+
+            if food_prev != food:
+                food_prev = food
+                greedy.prev_pos = []
 
             if not driver.execute_script("return isRunning"):
                 driver.quit()
@@ -47,7 +57,7 @@ def main():
 # Greedy Euclidean path-finding algorithm w/ Back-Tracking Penalties
 def greedy(s, f, b, xm, ym):
     if not hasattr(greedy, "prev_pos"):
-        greedy.prev_pos = None
+        greedy.prev_pos = []
 
     food_pos = (f['x'], f['y'])
     MOVES = {
@@ -74,7 +84,7 @@ def greedy(s, f, b, xm, ym):
         d = math.dist(next_pos, food_pos)
 
         # Prevent stalling by "penalizing" a repeated move
-        if next_pos == greedy.prev_pos:
+        if next_pos in greedy.prev_pos:
             d += 10_000
 
         if d < best_dist:
@@ -82,7 +92,7 @@ def greedy(s, f, b, xm, ym):
             best_key = key
 
     if best_key:
-        greedy.prev_pos = (s['x'], s['y'])
+        greedy.prev_pos.append((s['x'], s['y']))
         return best_key
 
 # Random Walk path-finding algorithm
