@@ -26,8 +26,10 @@ def main():
             food = driver.execute_script("return {'x': foodX, 'y': foodY}")
             blocks = driver.execute_script("return blocks")
 
-            # greedy_euclidean(snake, food, blocks, actions, x_max, y_max)
-            random_walk(snake, blocks, actions, x_max, y_max)
+            key = greedy(snake, food, blocks, x_max, y_max)
+            # key = random_walk(snake, blocks, x_max, y_max)
+
+            actions.send_keys(key).perform()
 
             if not driver.execute_script("return isRunning"):
                 driver.quit()
@@ -43,9 +45,9 @@ def main():
 
 
 # Greedy Euclidean path-finding algorithm w/ Back-Tracking Penalties
-def greedy_euclidean(s, f, b, actions, xm, ym):
-    if not hasattr(greedy_euclidean, "prev_pos"):
-        greedy_euclidean.prev_pos = None
+def greedy(s, f, b, xm, ym):
+    if not hasattr(greedy, "prev_pos"):
+        greedy.prev_pos = None
 
     food_pos = (f['x'], f['y'])
     MOVES = {
@@ -72,7 +74,7 @@ def greedy_euclidean(s, f, b, actions, xm, ym):
         d = math.dist(next_pos, food_pos)
 
         # Prevent stalling by "penalizing" a repeated move
-        if next_pos == greedy_euclidean.prev_pos:
+        if next_pos == greedy.prev_pos:
             d += 10_000
 
         if d < best_dist:
@@ -80,11 +82,11 @@ def greedy_euclidean(s, f, b, actions, xm, ym):
             best_key = key
 
     if best_key:
-        greedy_euclidean.prev_pos = (s['x'], s['y'])
-        actions.send_keys(best_key).perform()
+        greedy.prev_pos = (s['x'], s['y'])
+        return best_key
 
 # Random Walk path-finding algorithm
-def random_walk(s, b, actions, xm, ym):
+def random_walk(s, b, xm, ym):
     MOVES = {
         Keys.ARROW_RIGHT: (25, 0),
         Keys.ARROW_LEFT: (-25, 0),
@@ -101,8 +103,12 @@ def random_walk(s, b, actions, xm, ym):
 
     # choose and send random key
     random_key = random.choice(options)
-    actions.send_keys(random_key).perform()
+    return random_key
 
+def beam_search():
+    k = 2 # beam width
+
+    
 
 if __name__ == "__main__":
     main()
