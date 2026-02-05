@@ -5,7 +5,6 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import WebDriverException
 import math
 import time
-import random
 
 def main():
     driver = webdriver.Chrome()
@@ -28,7 +27,6 @@ def main():
             blocks = driver.execute_script("return blocks")
 
             key = greedy(snake, food, blocks, x_max, y_max)
-            # key = random(snake, blocks, x_max, y_max)
 
             actions.send_keys(key).perform()
 
@@ -90,26 +88,6 @@ def greedy(s, f, b, xm, ym):
     if best_key:
         greedy.prev_pos.append((s['x'], s['y']))
         return best_key
-
-# Random Walk path-finding algorithm (for fun)
-def random(s, b, xm, ym):
-    MOVES = {
-        Keys.ARROW_RIGHT: (25, 0),
-        Keys.ARROW_LEFT: (-25, 0),
-        Keys.ARROW_UP: (0, -25),
-        Keys.ARROW_DOWN: (0, 25)
-    }
-    options = []
-
-    # block and edge detection
-    for key, (dx, dy) in MOVES.items():
-        next_pos = (s['x'] + dx, s['y'] + dy)
-        if ([next_pos[0], next_pos[1]] not in b) and (next_pos[0] >= 0) and (next_pos[1] > 0) and (next_pos[0] < xm) and (next_pos[1] < ym):
-            options.append(key)
-
-    # choose and send random key
-    random_key = random.choice(options)
-    return random_key 
 
 if __name__ == "__main__":
     main()

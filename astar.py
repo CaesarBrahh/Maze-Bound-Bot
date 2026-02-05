@@ -3,8 +3,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import WebDriverException
+import math
 import time
-import random
 
 def main():
     driver = webdriver.Chrome()
@@ -14,6 +14,7 @@ def main():
     driver.find_element("tag name", "body").click()
 
     snake = {'x': 2, 'y': 2}
+    food = {'x': 0, 'y': 0}
     blocks = []
     x_max = driver.execute_script("return board.width")
     y_max = driver.execute_script("return board.height")
@@ -21,9 +22,10 @@ def main():
     try:
         while True:
             snake = driver.execute_script("return {'x': snakeX, 'y': snakeY, 'dir_x': velocityX, 'dir_y': velocityY}")
+            food = driver.execute_script("return {'x': foodX, 'y': foodY}")
             blocks = driver.execute_script("return blocks")
 
-            key = random_walk(snake, blocks, x_max, y_max)
+            key = astar(snake, food, blocks, x_max, y_max)
 
             actions.send_keys(key).perform()
 
@@ -39,25 +41,10 @@ def main():
         except:
             pass
 
-# Random Walk path-finding algorithm 
-def random_walk(s, b, xm, ym):
-    MOVES = {
-        Keys.ARROW_RIGHT: (25, 0),
-        Keys.ARROW_LEFT: (-25, 0),
-        Keys.ARROW_UP: (0, -25),
-        Keys.ARROW_DOWN: (0, 25)
-    }
-    options = []
 
-    # block and edge detection
-    for key, (dx, dy) in MOVES.items():
-        next_pos = (s['x'] + dx, s['y'] + dy)
-        if ([next_pos[0], next_pos[1]] not in b) and (next_pos[0] >= 0) and (next_pos[1] > 0) and (next_pos[0] < xm) and (next_pos[1] < ym):
-            options.append(key)
-
-    # choose and send random key
-    random_key = random.choice(options)
-    return random_key 
+# Greedy Euclidean path-finding algorithm w/ Back-Tracking Penalties
+def astar(s, f, b, xm, ym):
+    return "cake"
 
 if __name__ == "__main__":
     main()
