@@ -1,7 +1,3 @@
-'''
-TODO:
-- back-tracking reference list
-'''
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
@@ -96,7 +92,7 @@ def greedy(s, f, b, xm, ym):
         greedy.prev_pos.append((s['x'], s['y']))
         return best_key
 
-# Random Walk path-finding algorithm
+# Random Walk path-finding algorithm (for fun)
 def random(s, b, xm, ym):
     MOVES = {
         Keys.ARROW_RIGHT: (25, 0),
