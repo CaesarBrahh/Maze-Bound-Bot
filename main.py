@@ -1,7 +1,6 @@
 '''
 TODO:
 - back-tracking reference list
-- align ticks
 '''
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -37,6 +36,7 @@ def main():
 
             actions.send_keys(key).perform()
 
+            print(greedy.prev_pos)
             if food_prev != food:
                 food_prev = food
                 greedy.prev_pos = []
@@ -83,9 +83,10 @@ def greedy(s, f, b, xm, ym):
 
         d = math.dist(next_pos, food_pos)
 
-        # Prevent stalling by "penalizing" a repeated move
-        if next_pos in greedy.prev_pos:
-            d += 10_000
+        # Prevent stalling by penalizing each repeat position by 10k
+        for i in greedy.prev_pos:
+            if (i == next_pos):
+                d += 10_000
 
         if d < best_dist:
             best_dist = d
