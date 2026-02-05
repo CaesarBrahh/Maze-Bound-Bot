@@ -27,7 +27,7 @@ def main():
             blocks = driver.execute_script("return blocks")
 
             key = greedy(snake, food, blocks, x_max, y_max)
-            # key = random_walk(snake, blocks, x_max, y_max)
+            # key = random(snake, blocks, x_max, y_max)
 
             actions.send_keys(key).perform()
 
@@ -86,7 +86,7 @@ def greedy(s, f, b, xm, ym):
         return best_key
 
 # Random Walk path-finding algorithm
-def random_walk(s, b, xm, ym):
+def random(s, b, xm, ym):
     MOVES = {
         Keys.ARROW_RIGHT: (25, 0),
         Keys.ARROW_LEFT: (-25, 0),
@@ -103,12 +103,7 @@ def random_walk(s, b, xm, ym):
 
     # choose and send random key
     random_key = random.choice(options)
-    return random_key
-
-def beam_search():
-    k = 2 # beam width
-
-    
+    return random_key 
 
 if __name__ == "__main__":
     main()
