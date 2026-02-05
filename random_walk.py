@@ -23,7 +23,7 @@ def main():
             snake = driver.execute_script("return {'x': snakeX, 'y': snakeY, 'dir_x': velocityX, 'dir_y': velocityY}")
             blocks = driver.execute_script("return blocks")
 
-            key = random(snake, blocks, x_max, y_max)
+            key = random_walk(snake, blocks, x_max, y_max)
 
             actions.send_keys(key).perform()
 
@@ -40,7 +40,7 @@ def main():
             pass
 
 # Random Walk path-finding algorithm (for fun)
-def random(s, b, xm, ym):
+def random_walk(s, b, xm, ym):
     MOVES = {
         Keys.ARROW_RIGHT: (25, 0),
         Keys.ARROW_LEFT: (-25, 0),
